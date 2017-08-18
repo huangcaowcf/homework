@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	target = flag.String("target", "127.0.0.1:9090", "target host")
+	target = flag.String("target", "www.baidu.com:80", "target host")
 )
 
 func handleConn(conn net.Conn) {
@@ -26,14 +26,12 @@ func handleConn(conn net.Conn) {
 	}
 	go func() {
 		defer wg.Done()
-		r := NewCryptoReader(conn, "123456")
-		io.Copy(remote, r)
+		io.Copy(remote, conn)
 		remote.Close()
 	}()
 	go func() {
 		defer wg.Done()
-		w := NewCryptoWriter(conn, "123456")
-		io.Copy(w, remote)
+		io.Copy(conn, remote)
 		conn.Close()
 	}()
 	wg.Wait()
@@ -44,7 +42,7 @@ func handleConn(conn net.Conn) {
 
 func main() {
 	//建立监听
-	addr := "127.0.0.1:8080"
+	addr := "10.20.64.11:8021"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatal(err)
